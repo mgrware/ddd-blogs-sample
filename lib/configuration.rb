@@ -5,6 +5,7 @@ class Configuration
     enable_res_infra_event_linking(cqrs)
 
     enable_articles_read_model(cqrs)
+    enable_users_read_model(cqrs)
 
     Handlers::Configuration.new(
       number_generator: Rails.configuration.number_generator
@@ -23,5 +24,9 @@ class Configuration
 
   def enable_articles_read_model(cqrs)
     Articles::Configuration.new.call(cqrs)
+  end
+
+  def enable_users_read_model(cqrs)
+    Users::Configuration.new.call(cqrs)
   end
 end

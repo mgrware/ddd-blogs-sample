@@ -27,6 +27,11 @@ class Api::V1::ArticlesController < ApplicationController
       content: params[:content],
       title: params[:title]
     ))
+
+    command_bus.(Crm::AssignUserToArticle.new(
+      article_id: @uuid,
+      user_id: params[:user_id]
+    ))
   end
 
 end

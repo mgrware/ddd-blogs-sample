@@ -1,4 +1,5 @@
 require_relative "blogging"
+require_relative "crm"
 
 module Handlers
   class Configuration
@@ -16,7 +17,8 @@ module Handlers
         "Neither number_generator can be null"
       ) if @number_generator.nil? 
       [
-        Blogging::Configuration.new(@number_generator)
+        Blogging::Configuration.new(@number_generator),
+        Crm::Configuration.new
       ].each { |c| c.call(cqrs) }
     end
 

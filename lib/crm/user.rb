@@ -20,21 +20,8 @@ module Crm
         )
     end
 
-    def promote_to_vip
-      raise AlreadyVip if @vip
-      apply UserPromotedToVip.new(
-          data: {
-            user_id: @id
-          }
-        )
-    end
-
     on UserRegistered do |event|
       @registered = true
-    end
-
-    on UserPromotedToVip do |event|
-      @vip = true
     end
   end
 end
