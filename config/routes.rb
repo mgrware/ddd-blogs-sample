@@ -7,7 +7,13 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do 
-      resources :articles
+      resources :articles do
+        member do
+          put "like/:user_id", to: 'articles#like'
+          put "read/:user_id", to: 'articles#read'
+          put "comment/:user_id", to: 'articles#comment'
+        end
+      end
       resources :users
     end 
   end 

@@ -10,7 +10,6 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def create
-   
     ApplicationRecord.transaction do
       submit_user
     end

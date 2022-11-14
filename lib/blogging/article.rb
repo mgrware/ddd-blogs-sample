@@ -23,6 +23,35 @@ module Blogging
       )
     end
 
+    def like(user_id)
+      apply ArticleLiked.new(
+        data: {
+          article_id: @id,
+          user_id: user_id
+        }
+      )
+    end
+
+    def read(user_id)
+      apply ArticleReaded.new(
+        data: {
+          article_id: @id,
+          user_id: user_id
+        }
+      )
+    end
+
+    def comment(user_id, content)
+      apply ArticleCommented.new(
+        data: {
+          article_id: @id,
+          user_id: user_id,
+          content: content
+
+        }
+      )
+    end
+
     on ArticleSubmitted do |event|
       @user_id = event.data[:user_id]
       @article_number = event.data[:article_number]
@@ -31,6 +60,19 @@ module Blogging
       @title = event.data[:title]
     end
 
+
+    on ArticleLiked do |event|
+      @user_id = event.data[:user_id]
+    end
+
+    on ArticleReaded do |event|
+      @user_id = event.data[:user_id]
+    end
+
+    on ArticleCommented do |event|
+      # @user_id = event.data[:user_id]
+      # @content = event.data[:content]
+    end
   
     class Page
       def initialize

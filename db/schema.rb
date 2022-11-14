@@ -10,9 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_11_10_111616) do
+ActiveRecord::Schema[7.0].define(version: 2022_11_14_094533) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "article_comments", force: :cascade do |t|
+    t.string "article_uid"
+    t.integer "user_id"
+    t.string "user_name"
+    t.string "content"
+  end
 
   create_table "article_users", force: :cascade do |t|
     t.string "uid"
@@ -26,6 +33,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_11_10_111616) do
     t.integer "user_id"
     t.string "user_name"
     t.string "rate"
+    t.boolean "like"
+    t.boolean "read"
   end
 
   create_table "articles", force: :cascade do |t|

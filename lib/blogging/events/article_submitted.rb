@@ -1,4 +1,3 @@
-
 module Blogging
   class ArticleSubmitted < Infra::Event
     attribute :article_number, Infra::Types::ArticleNumber

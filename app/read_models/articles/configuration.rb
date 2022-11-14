@@ -3,8 +3,14 @@ module Articles
     self.table_name = 'articles'
 
     has_many :article_visitors,
-      -> { article(id: :asc) },
+      -> { order(id: :asc) },
       class_name: "Articles::ArticleVisitor",
+      foreign_key: :article_uid,
+      primary_key: :uid
+    
+    has_many :article_comments,
+      -> { order(id: :asc) },
+      class_name: "Articles::ArticleComment",
       foreign_key: :article_uid,
       primary_key: :uid
   end
@@ -23,6 +29,10 @@ module Articles
     def value
       10
     end
+  end
+
+  class ArticleComment < ApplicationRecord
+    self.table_name = "article_comments"
   end
 
   class Configuration
@@ -46,6 +56,21 @@ module Articles
       subscribe_and_link_to_stream(
         -> (event) { create_user(event) },
         [Crm::UserRegistered]
+      )
+
+      subscribe_and_link_to_stream(
+        ->(event) { like_article(event) },
+        [Blogging::ArticleLiked]
+      )
+
+      subscribe_and_link_to_stream(
+        ->(event) { read_article(event) },
+        [Blogging::ArticleReaded]
+      )
+
+      subscribe_and_link_to_stream(
+        ->(event) { comment_article(event) },
+        [Blogging::ArticleCommented]
       )
     end
 
@@ -110,5 +135,50 @@ module Articles
       )
     end
 
+    def like_article(event)
+      article_id = event.data.fetch(:article_id)
+      visitor =
+      find_visitor(article_id, event.data.fetch(:user_id)) ||
+          create(article_id, event.data.fetch(:user_id))
+      visitor.like = true
+      visitor.save!
+    end
+
+    def read_article(event)
+      article_id = event.data.fetch(:article_id)
+      visitor =
+      find_visitor(article_id, event.data.fetch(:user_id)) ||
+          create(article_id, event.data.fetch(:user_id))
+      visitor.read = true
+      visitor.save!
+    end
+
+    def comment_article(event)
+      article = Article.find_by_uid(event.data.fetch(:article_id))
+      article.article_comments.create(
+        user_id: event.data.fetch(:user_id),
+        content: event.data.fetch(:content),
+        user_name: User.find_by_uid(event.data.fetch(:user_id)).name
+      )
+    end
+
+    def find_visitor(article_uid, user_id)
+      Article
+        .find_by_uid(article_uid)
+        .article_visitors
+        .where(user_id: user_id)
+        .first
+    end
+
+    def create(article_id, user_id)
+      user = User.find_by_uid(user_id)
+      Article
+        .find_by(uid: article_id)
+        .article_visitors
+        .create(
+          user_id: user_id,
+          user_name: user.name
+        )
+    end
   end
 end

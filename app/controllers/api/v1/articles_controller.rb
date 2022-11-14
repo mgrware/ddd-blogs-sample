@@ -6,7 +6,8 @@ class Api::V1::ArticlesController < ApplicationController
 
   def show
     @article = Articles::Article.find_by_uid(params[:id])
-    render json: {data: @article}
+
+    render json: {data: { articles: @article, visitors: @article.try(:article_visitors), comments: @article.try(:article_comments)}}
   end
 
   def create
@@ -17,6 +18,47 @@ class Api::V1::ArticlesController < ApplicationController
     
     render json: { messages: "Order was successfully submitted", data: { article_id: @uuid}}
   end
+
+  def like
+    ActiveRecord::Base.transaction do
+      command_bus.(
+        Blogging::LikeArticle.new(
+          article_id: params[:id],
+          user_id: params[:user_id]
+        )
+      )
+    end
+
+    render json: { messages: "Article was successfully liked", data: { article_id: params[:id]}}
+  end
+
+  def read
+    ActiveRecord::Base.transaction do
+      command_bus.(
+        Blogging::ReadArticle.new(
+          article_id: params[:id],
+          user_id: params[:user_id]
+        )
+      )
+    end
+
+    render json: { messages: "Article was successfully readed", data: { article_id: params[:id]}}
+  end
+
+  def comment
+    ActiveRecord::Base.transaction do
+      command_bus.(
+        Blogging::CommentArticle.new(
+          article_id: params[:id],
+          user_id: params[:user_id],
+          content: params[:content]
+        )
+      )
+    end
+
+    render json: { messages: "Article was successfully commented", data: { article_id: params[:id]}}
+  end
+  
 
   private
 
